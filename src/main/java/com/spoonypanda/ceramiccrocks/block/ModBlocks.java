@@ -2,7 +2,6 @@ package com.spoonypanda.ceramiccrocks.block;
 
 import com.spoonypanda.ceramiccrocks.CeramicCrocks;
 import com.spoonypanda.ceramiccrocks.block.custom.CrockBlock;
-import com.spoonypanda.ceramiccrocks.block.entity.CrockBlockEntity;
 import com.spoonypanda.ceramiccrocks.item.CrockBlockItem;
 import com.spoonypanda.ceramiccrocks.item.ModItems;
 import com.spoonypanda.ceramiccrocks.util.CrockSize;
@@ -22,12 +21,6 @@ import java.util.function.Supplier;
 public class ModBlocks {
     public static final DeferredRegister<Block> BLOCKS =
             DeferredRegister.create(ForgeRegistries.BLOCKS, CeramicCrocks.MOD_ID);
-
-    // Old registers, leaving in commented so I can go back and see how this was original done before updating
-//    public static final RegistryObject<Block> LARGE_CROCK = registerBlock("large_crock",
-//            () -> new Block(BlockBehaviour.Properties.of().instrument(NoteBlockInstrument.BASS).strength(2.5F).sound(SoundType.STONE).noOcclusion()));
-//    public static final RegistryObject<Block> SMALL_CROCK = registerBlock("small_crock",
-//            () -> new Block(BlockBehaviour.Properties.of().instrument(NoteBlockInstrument.BASS).strength(2.5F).sound(SoundType.STONE).noOcclusion()));
 
     public static final RegistryObject<Block> LARGE_CROCK = registerBlock("large_crock",
             () -> new CrockBlock(BlockBehaviour.Properties.of()

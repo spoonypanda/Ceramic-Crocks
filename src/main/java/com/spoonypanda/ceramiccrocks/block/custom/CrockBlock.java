@@ -31,6 +31,8 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
+import static com.spoonypanda.ceramiccrocks.Config.allowDye;
+
 public class CrockBlock extends BaseEntityBlock{
     private final VoxelShape shape;
     private final CrockSize size;
@@ -97,11 +99,9 @@ public class CrockBlock extends BaseEntityBlock{
     @Override
     public InteractionResult use(BlockState pState, Level pLevel, BlockPos pPos, Player pPlayer, InteractionHand pHand, BlockHitResult pHit) {
 
-        System.out.println("Attempting to interact with crock.");
-
         ItemStack heldItem = pPlayer.getItemInHand(pHand);
 
-        if (pPlayer.isShiftKeyDown() && heldItem.getItem() instanceof DyeItem dyeItem) {
+        if (pPlayer.isShiftKeyDown() && heldItem.getItem() instanceof DyeItem dyeItem && allowDye == true) {
             if (!pLevel.isClientSide()) {
                 BlockEntity be = pLevel.getBlockEntity(pPos);
                 if (be instanceof CrockBlockEntity crock) {
@@ -113,18 +113,6 @@ public class CrockBlock extends BaseEntityBlock{
             }
             return InteractionResult.sidedSuccess(pLevel.isClientSide());
         }
-//        if (heldItem.getItem() instanceof DyeItem dyeItem) {
-//            if (!pLevel.isClientSide()) {
-//                BlockEntity be = pLevel.getBlockEntity(pPos);
-//                if (be instanceof CrockBlockEntity crock) {
-//                    crock.setDyeColor(dyeItem.getDyeColor());
-//                    if (!pPlayer.isCreative()) {
-//                        heldItem.shrink(1);
-//                    }
-//                }
-//            }
-//            return InteractionResult.sidedSuccess(pLevel.isClientSide());
-//        }
         else{
             if(!pLevel.isClientSide()) {
                 BlockEntity entity = pLevel.getBlockEntity(pPos);
@@ -135,8 +123,8 @@ public class CrockBlock extends BaseEntityBlock{
                     throw new IllegalStateException("Our Container provider is missing!");
                 }
             }
+            return InteractionResult.sidedSuccess(pLevel.isClientSide());
         }
-        return InteractionResult.sidedSuccess(pLevel.isClientSide());
     }
 
 }
