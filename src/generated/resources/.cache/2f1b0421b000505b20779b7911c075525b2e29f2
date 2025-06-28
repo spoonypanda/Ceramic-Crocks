@@ -1,0 +1,4 @@
+// 1.20.1	2025-05-15T19:00:34.3372079	Tags for minecraft:block mod id ceramiccrocks
+eb1f2adeb0aa14fa3462f53c38d74082e766bf5f data/ceramiccrocks/tags/blocks/storage_crock.json
+eb1f2adeb0aa14fa3462f53c38d74082e766bf5f data/forge/tags/blocks/storage_blocks.json
+eb1f2adeb0aa14fa3462f53c38d74082e766bf5f data/minecraft/tags/blocks/mineable/pickaxe.json

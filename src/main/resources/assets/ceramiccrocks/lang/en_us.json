@@ -1,0 +1,9 @@
+{
+  "item.ceramiccrocks.unfired_large_crock": "Unfired Large Crock",
+  "item.ceramiccrocks.unfired_small_crock": "Unfired Small Crock",
+  "block.ceramiccrocks.large_crock": "Large Crock",
+  "block.ceramiccrocks.small_crock": "Small Crock",
+  "creativetab.ceramiccrocks_tab": "Ceramic Crocks",
+  "tooltip.ceramiccrocks.large_crock": "A large primitive vessel to hold items. Keeps contents on break.",
+  "tooltip.ceramiccrocks.small_crock": "A small primitive vessel to hold items. Keeps contents on break."
+}

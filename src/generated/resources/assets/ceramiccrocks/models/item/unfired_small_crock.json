@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "ceramiccrocks:item/unfired_small_crock"
+  }
+}

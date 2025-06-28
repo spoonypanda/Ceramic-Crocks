@@ -1,0 +1,34 @@
+{
+  "type": "minecraft:block",
+  "pools": [
+    {
+      "bonus_rolls": 0.0,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "functions": [
+            {
+              "function": "minecraft:copy_nbt",
+              "ops": [
+                {
+                  "op": "replace",
+                  "source": "inventory",
+                  "target": "BlockEntityTag.inventory"
+                },
+                {
+                  "op": "replace",
+                  "source": "dyecolor",
+                  "target": "BlockEntityTag.dyecolor"
+                }
+              ],
+              "source": "block_entity"
+            }
+          ],
+          "name": "ceramiccrocks:large_crock"
+        }
+      ],
+      "rolls": 1.0
+    }
+  ],
+  "random_sequence": "ceramiccrocks:blocks/large_crock"
+}
