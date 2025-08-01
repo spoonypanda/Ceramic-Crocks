@@ -42,7 +42,7 @@ public class CrockScreen extends AbstractContainerScreen<CrockMenu> {
     protected void renderBg(GuiGraphics guiGraphics, float v, int i, int i1) {
         imageWidth = 176;
         imageHeight = switch (size) {
-            case SMALL -> 165;
+            case SMALL -> 193;
             case LARGE -> 193;
         };
 
