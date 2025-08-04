@@ -2,6 +2,8 @@ package com.spoonypanda.ceramiccrocks.block.entity;
 
 import com.spoonypanda.ceramiccrocks.screen.CrockMenu;
 import com.spoonypanda.ceramiccrocks.util.CrockSize;
+import com.spoonypanda.ceramiccrocks.util.ModTags;
+import com.spoonypanda.ceramiccrocks.Config;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
@@ -16,6 +18,8 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ContainerData;
 import net.minecraft.world.item.DyeColor;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.common.capabilities.Capability;
@@ -23,6 +27,7 @@ import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.ItemStackHandler;
+import net.minecraftforge.registries.ForgeRegistries;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -54,6 +59,11 @@ public class CrockBlockEntity extends BlockEntity implements MenuProvider {
             protected void onContentsChanged(int slot) {
                 super.onContentsChanged(slot);
                 setChanged();
+            }
+
+            @Override
+            public boolean isItemValid(int slot, @NotNull ItemStack stack) {
+                return !isBlacklisted(stack);
             }
         };
 
@@ -179,5 +189,16 @@ public class CrockBlockEntity extends BlockEntity implements MenuProvider {
             BlockState state = level.getBlockState(worldPosition);
             level.sendBlockUpdated(worldPosition, state, state, 3);
         }
+    }
+
+    private boolean isBlacklisted(ItemStack stack) {
+
+        // Can use the config or the CROCK_BLACKLISTED tag, depending on how the modpack author wants to do things.
+        Item item = stack.getItem();
+        if (Config.crockBlacklist.contains(ForgeRegistries.ITEMS.getKey(item))) {
+            return true;
+        }
+
+        return stack.is(ModTags.Items.CROCK_BLACKLISTED);
     }
 }

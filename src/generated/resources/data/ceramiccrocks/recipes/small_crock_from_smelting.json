@@ -3,7 +3,6 @@
   "category": "blocks",
   "cookingtime": 200,
   "experience": 0.25,
-  "group": "small_crock",
   "ingredient": {
     "item": "ceramiccrocks:unfired_small_crock"
   },

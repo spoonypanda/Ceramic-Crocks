@@ -1,13 +1,7 @@
 {
   "parent": "minecraft:recipes/root",
   "criteria": {
-    "has_the_recipe": {
-      "conditions": {
-        "recipe": "minecraft:large_crock_from_smelting_unfired_large_crock"
-      },
-      "trigger": "minecraft:recipe_unlocked"
-    },
-    "has_unfired_large_crock": {
+    "has_large_crock": {
       "conditions": {
         "items": [
           {
@@ -18,17 +12,23 @@
         ]
       },
       "trigger": "minecraft:inventory_changed"
+    },
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "ceramiccrocks:large_crock_from_smelting"
+      },
+      "trigger": "minecraft:recipe_unlocked"
     }
   },
   "requirements": [
     [
-      "has_unfired_large_crock",
+      "has_large_crock",
       "has_the_recipe"
     ]
   ],
   "rewards": {
     "recipes": [
-      "minecraft:large_crock_from_smelting_unfired_large_crock"
+      "ceramiccrocks:large_crock_from_smelting"
     ]
   },
   "sends_telemetry_event": false

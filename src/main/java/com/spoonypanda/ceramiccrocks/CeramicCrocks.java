@@ -141,8 +141,8 @@ public class CeramicCrocks
 
                 ItemPropertyFunction dyeColor = dyeColorProperty();
 
-                ItemProperties.register(ModBlocks.LARGE_CROCK.get().asItem(), new ResourceLocation("dyecolor"), dyeColor);
-                ItemProperties.register(ModBlocks.SMALL_CROCK.get().asItem(), new ResourceLocation("dyecolor"), dyeColor);
+                ItemProperties.register(ModBlocks.LARGE_CROCK.get().asItem(), ResourceLocation.fromNamespaceAndPath("ceramiccrocks","dyecolor"), dyeColor);
+                ItemProperties.register(ModBlocks.SMALL_CROCK.get().asItem(), ResourceLocation.fromNamespaceAndPath("ceramiccrocks","dyecolor"), dyeColor);
             });
         }
     }

@@ -3,7 +3,6 @@
   "category": "blocks",
   "cookingtime": 200,
   "experience": 0.25,
-  "group": "large_crock",
   "ingredient": {
     "item": "ceramiccrocks:unfired_large_crock"
   },

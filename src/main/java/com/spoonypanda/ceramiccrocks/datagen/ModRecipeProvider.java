@@ -4,6 +4,8 @@ import com.spoonypanda.ceramiccrocks.block.ModBlocks;
 import com.spoonypanda.ceramiccrocks.item.ModItems;
 import net.minecraft.data.PackOutput;
 import net.minecraft.data.recipes.*;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.level.ItemLike;
 import net.minecraftforge.common.crafting.conditions.IConditionBuilder;
@@ -21,8 +23,8 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
 
     @Override
     protected void buildRecipes(Consumer<FinishedRecipe> pWriter) {
-        oreSmelting(pWriter,List.of(ModItems.UNFIRED_LARGE_CROCK.get()), RecipeCategory.MISC, ModBlocks.LARGE_CROCK.get(),0.25f,200,"large_crock");
-        oreSmelting(pWriter,List.of(ModItems.UNFIRED_SMALL_CROCK.get()), RecipeCategory.MISC, ModBlocks.SMALL_CROCK.get(),0.25f,200,"small_crock");
+        oreSmelting(pWriter,ModItems.UNFIRED_LARGE_CROCK.get(), RecipeCategory.MISC, ModBlocks.LARGE_CROCK.get(),0.25f,200,"large_crock");
+        oreSmelting(pWriter,ModItems.UNFIRED_SMALL_CROCK.get(), RecipeCategory.MISC, ModBlocks.SMALL_CROCK.get(),0.25f,200,"small_crock");
 
         ShapedRecipeBuilder.shaped(RecipeCategory.MISC,ModItems.UNFIRED_LARGE_CROCK.get())
                 .pattern("CCC")
@@ -41,7 +43,12 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
                 .save(pWriter);
     }
 
-    protected static void oreSmelting(Consumer<FinishedRecipe> pFinishedRecipeConsumer, List<ItemLike> pIngredients, RecipeCategory pCategory, ItemLike pResult, float pExperience, int pCookingTIme, String pGroup) {
-        oreCooking(pFinishedRecipeConsumer, RecipeSerializer.SMELTING_RECIPE, pIngredients, pCategory, pResult, pExperience, pCookingTIme, pGroup, "_from_smelting");
+    protected static void oreSmelting(Consumer<FinishedRecipe> pFinishedRecipeConsumer, ItemLike pIngredient, RecipeCategory pCategory, ItemLike pResult, float pExperience, int pCookingTime, String pGroup) {
+        String name = pGroup + "_from_smelting";
+        //oreCooking(pFinishedRecipeConsumer, RecipeSerializer.SMELTING_RECIPE, pIngredients, pCategory, pResult, pExperience, pCookingTIme, pGroup, "_from_smelting");
+        SimpleCookingRecipeBuilder
+                .smelting(Ingredient.of(pIngredient), pCategory, pResult, pExperience, pCookingTime)
+                .unlockedBy("has_" + pGroup, has(pIngredient))
+                .save(pFinishedRecipeConsumer, ResourceLocation.fromNamespaceAndPath("ceramiccrocks",name));
     }
 }

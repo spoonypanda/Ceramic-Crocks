@@ -6,9 +6,10 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.config.ModConfigEvent;
 import net.minecraftforge.registries.ForgeRegistries;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
-// An example config class. This is not required, but it's a good idea to have one to keep your config organized.
-// Demonstrates how to use Forge's config APIs
 @Mod.EventBusSubscriber(modid = CeramicCrocks.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
 public class Config
 {
@@ -18,18 +19,39 @@ public class Config
             .comment("Allow the dyeing of Crocks (set to false if you hate fun)")
             .define("allowDye", true);
 
+    private static final ForgeConfigSpec.ConfigValue<List<? extends String>> CROCK_BLACKLIST = BUILDER
+            .comment("List the items you don't want to allow in your crocks. Format: modid:item_name")
+            .comment("CROCK_BLACKLISTED tag is also a thing, if you prefer to do it through datapacks.")
+            .comment("Remove the default crocks at your own risk, your minecraft universe may collapse due to crockception.")
+            .defineListAllowEmpty(
+                    "crockBlacklist",
+                    List.of(
+                            "ceramiccrocks:small_crock",
+                            "ceramiccrocks:large_crock"
+                    ),
+                    Config::validateItemName
+            );
+
+
     static final ForgeConfigSpec SPEC = BUILDER.build();
 
     public static boolean allowDye;
+    public static Set<ResourceLocation> crockBlacklist = Set.of();
 
-    private static boolean validateItemName(final Object obj)
-    {
-        return obj instanceof final String itemName && ForgeRegistries.ITEMS.containsKey(new ResourceLocation(itemName));
+
+    private static boolean validateItemName(final Object obj) {
+        if (!(obj instanceof String s)) return false;
+        ResourceLocation id = ResourceLocation.tryParse(s);
+        return id != null && ForgeRegistries.ITEMS.containsKey(id);
     }
 
     @SubscribeEvent
-    static void onLoad(final ModConfigEvent event)
-    {
+    static void onLoad(final ModConfigEvent event){
         allowDye = ALLOW_DYE.get();
+
+        crockBlacklist = CROCK_BLACKLIST.get().stream()
+                .map(ResourceLocation::new)
+                .filter(ForgeRegistries.ITEMS::containsKey)
+                .collect(Collectors.toUnmodifiableSet());
     }
 }

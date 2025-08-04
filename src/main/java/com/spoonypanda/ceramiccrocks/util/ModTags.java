@@ -13,15 +13,16 @@ public class ModTags {
         public static final TagKey<Block> STORAGE_CROCK = tag("storage_crock");
 
         private static TagKey<Block> tag(String name) {
-            return BlockTags.create(new ResourceLocation(CeramicCrocks.MOD_ID, name));
+            return BlockTags.create(ResourceLocation.fromNamespaceAndPath(CeramicCrocks.MOD_ID, name));
         }
     }
 
     public static class Items{
         public static final TagKey<Item> UNFIRED_CROCK = tag("unfired_crock");
+        public static final TagKey<Item> CROCK_BLACKLISTED = tag("crock_blacklisted");
 
         private static TagKey<Item> tag(String name) {
-            return ItemTags.create(new ResourceLocation(CeramicCrocks.MOD_ID, name));
+            return ItemTags.create(ResourceLocation.fromNamespaceAndPath(CeramicCrocks.MOD_ID, name));
         }
     }
 }
