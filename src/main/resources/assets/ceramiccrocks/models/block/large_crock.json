@@ -2,6 +2,7 @@
 	"credit": "Made with Blockbench",
 	"texture_size": [64, 64],
 	"parent": "minecraft:block/block",
+	"render_type": "minecraft:cutout",
 	"textures": {
 		"0": "ceramiccrocks:block/large_crock",
 		"particle": "ceramiccrocks:block/large_crock"

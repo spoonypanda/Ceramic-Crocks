@@ -1,10 +1,16 @@
 package com.spoonypanda.ceramiccrocks.util;
 
 import net.minecraft.util.StringRepresentable;
+import com.mojang.serialization.Codec;
 
 public enum CrockSize implements StringRepresentable {
+
+
     LARGE("large",12, 4,10,14,2),
     SMALL("small",6, 3,7,12,4);
+
+    public static final Codec<CrockSize> CODEC = StringRepresentable.fromEnum(CrockSize::values);
+
 
     private final String name;
     private final int slots;

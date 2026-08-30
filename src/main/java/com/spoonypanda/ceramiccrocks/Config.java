@@ -50,7 +50,7 @@ public class Config
         allowDye = ALLOW_DYE.get();
 
         crockBlacklist = CROCK_BLACKLIST.get().stream()
-                .map(ResourceLocation::new)
+                .map(ResourceLocation::parse)
                 .filter(ForgeRegistries.ITEMS::containsKey)
                 .collect(Collectors.toUnmodifiableSet());
     }

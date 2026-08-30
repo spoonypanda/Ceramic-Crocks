@@ -57,7 +57,7 @@ public class CrockScreen extends AbstractContainerScreen<CrockMenu> {
 
     @Override
     public void render(GuiGraphics pGuiGraphics, int pMouseX, int pMouseY, float pPartialTick) {
-        renderBackground(pGuiGraphics);
+        renderBackground(pGuiGraphics,pMouseX, pMouseY,pPartialTick);
         super.render(pGuiGraphics, pMouseX, pMouseY, pPartialTick);
         renderTooltip(pGuiGraphics,pMouseX,pMouseY);
     }

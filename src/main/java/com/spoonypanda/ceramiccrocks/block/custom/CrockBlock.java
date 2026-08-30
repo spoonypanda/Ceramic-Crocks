@@ -2,17 +2,24 @@ package com.spoonypanda.ceramiccrocks.block.custom;
 
 import com.spoonypanda.ceramiccrocks.block.entity.CrockBlockEntity;
 import com.spoonypanda.ceramiccrocks.util.CrockSize;
+
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+
 import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.DyeItem;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.component.ItemContainerContents;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BaseEntityBlock;
@@ -25,8 +32,6 @@ import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.minecraftforge.items.ItemStackHandler;
-import net.minecraftforge.network.NetworkHooks;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
@@ -34,6 +39,19 @@ import java.util.List;
 import static com.spoonypanda.ceramiccrocks.Config.allowDye;
 
 public class CrockBlock extends BaseEntityBlock{
+
+    public static final MapCodec<CrockBlock> CODEC = RecordCodecBuilder.mapCodec(instance ->
+            instance.group(
+                    propertiesCodec(),
+                    CrockSize.CODEC.fieldOf("size").forGetter(block -> block.size)
+            ).apply(instance, CrockBlock::new)
+    );
+
+    @Override
+    protected MapCodec<? extends BaseEntityBlock> codec() {
+        return CODEC;
+    }
+
     private final VoxelShape shape;
     private final CrockSize size;
     private final int numSlots;
@@ -64,28 +82,17 @@ public class CrockBlock extends BaseEntityBlock{
     }
 
     @Override
-    public void appendHoverText(ItemStack pStack, @Nullable BlockGetter pLevel, List<Component> pTooltip, TooltipFlag pFlag) {
-        super.appendHoverText(pStack, pLevel, pTooltip, pFlag);
+    public void appendHoverText(ItemStack pStack, Item.TooltipContext pContext, List<Component> pTooltip, TooltipFlag pFlag) {
+        super.appendHoverText(pStack, pContext, pTooltip, pFlag);
         pTooltip.add(Component.translatable("tooltip.ceramiccrocks." + size.getSerializedName() + "_crock"));
 
-        CompoundTag tag = pStack.getTag();
-        if (tag != null && tag.contains("BlockEntityTag")) {
-            CompoundTag blockEntityTag = tag.getCompound("BlockEntityTag");
-
-            if (blockEntityTag.contains("inventory")) {
-                ItemStackHandler tempHandler = new ItemStackHandler(numSlots);
-                tempHandler.deserializeNBT(blockEntityTag.getCompound("inventory"));
-
-                int usedSlots = 0;
-                for (int i = 0; i < tempHandler.getSlots(); i++) {
-                    if (!tempHandler.getStackInSlot(i).isEmpty()) {
-                        usedSlots++;
-                    }
-                }
-
-                if (usedSlots > 0) {
-                    pTooltip.add(Component.literal(usedSlots + " / " + tempHandler.getSlots() + " slots used"));
-                }
+        ItemContainerContents contents = pStack.get(DataComponents.CONTAINER);
+        if (contents != null) {
+            long usedSlots = contents.nonEmptyStream().count();
+            if (usedSlots > 0) {
+                pTooltip.add(Component.literal(
+                        usedSlots + " / " + numSlots + " slots used"
+                ));
             }
         }
     }
@@ -97,34 +104,33 @@ public class CrockBlock extends BaseEntityBlock{
     }
 
     @Override
-    public InteractionResult use(BlockState pState, Level pLevel, BlockPos pPos, Player pPlayer, InteractionHand pHand, BlockHitResult pHit) {
+    protected InteractionResult useWithoutItem(BlockState pState,Level pLevel,BlockPos pPos,Player pPlayer,BlockHitResult pHit) {
+        if (!pLevel.isClientSide()) {
+            BlockEntity entity = pLevel.getBlockEntity(pPos);
+            if (entity instanceof CrockBlockEntity crock
+                    && pPlayer instanceof ServerPlayer serverPlayer) {
+                serverPlayer.openMenu(crock, pPos);
+            } else {
+                throw new IllegalStateException("Our Container provider is missing!");
+            }
+        }
+        return InteractionResult.sidedSuccess(pLevel.isClientSide());
+    }
 
-        ItemStack heldItem = pPlayer.getItemInHand(pHand);
-
-        if (pPlayer.isShiftKeyDown() && heldItem.getItem() instanceof DyeItem dyeItem && allowDye == true) {
+    @Override
+    protected ItemInteractionResult useItemOn(ItemStack pStack,BlockState pState,Level pLevel,BlockPos pPos,Player pPlayer,InteractionHand pHand,BlockHitResult pHit) {
+        if (pPlayer.isShiftKeyDown() && pStack.getItem() instanceof DyeItem dyeItem && allowDye) {
             if (!pLevel.isClientSide()) {
                 BlockEntity be = pLevel.getBlockEntity(pPos);
                 if (be instanceof CrockBlockEntity crock) {
                     crock.setDyeColor(dyeItem.getDyeColor());
                     if (!pPlayer.isCreative()) {
-                        heldItem.shrink(1);
+                        pStack.shrink(1);
                     }
                 }
             }
-            return InteractionResult.sidedSuccess(pLevel.isClientSide());
+            return ItemInteractionResult.sidedSuccess(pLevel.isClientSide());
         }
-        else{
-            if(!pLevel.isClientSide()) {
-                BlockEntity entity = pLevel.getBlockEntity(pPos);
-                if(entity instanceof CrockBlockEntity){
-                    NetworkHooks.openScreen(((ServerPlayer)pPlayer),(CrockBlockEntity)entity,pPos);
-                }
-                else {
-                    throw new IllegalStateException("Our Container provider is missing!");
-                }
-            }
-            return InteractionResult.sidedSuccess(pLevel.isClientSide());
-        }
+        return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
     }
-
 }

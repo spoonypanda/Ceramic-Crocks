@@ -11,23 +11,18 @@ import com.spoonypanda.ceramiccrocks.screen.CrockScreen;
 import com.spoonypanda.ceramiccrocks.screen.ModMenuTypes;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.MenuScreens;
-import net.minecraft.client.renderer.ItemBlockRenderTypes;
-import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.item.ItemProperties;
 import net.minecraft.client.renderer.item.ItemPropertyFunction;
-import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.InteractionResult;
 import net.minecraft.world.item.*;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.BuildCreativeModeTabContentsEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.event.server.ServerStartingEvent;
+import net.minecraftforge.eventbus.api.Event;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -38,7 +33,6 @@ import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import org.slf4j.Logger;
 
 import javax.annotation.Nullable;
-import java.util.stream.Stream;
 
 @Mod(CeramicCrocks.MOD_ID)
 public class CeramicCrocks
@@ -49,7 +43,6 @@ public class CeramicCrocks
     public CeramicCrocks(FMLJavaModLoadingContext context)
     {
         IEventBus modEventBus = context.getModEventBus();
-
 
         ModItems.register(modEventBus);
         ModBlocks.register(modEventBus);
@@ -122,23 +115,15 @@ public class CeramicCrocks
 
                 Minecraft.getInstance().getItemColors().register(
                         (stack, tintIndex) -> {
-                            if (tintIndex == 0) {
-                                CompoundTag tag = BlockItem.getBlockEntityData(stack);
-                                if (tag != null && tag.contains("dyecolor")) {
-                                    DyeColor dye = DyeColor.byName(tag.getString("dyecolor"), null);
-                                    return getBlendedDyeColor(dye, 0.5f);
-                                }
+                            DyeColor dye = stack.get(DataComponents.BASE_COLOR);
+                            if (dye != null) {
+                                return getBlendedDyeColor(dye, 0.5f);
                             }
                             return 0xFFFFFF;
                         },
                         ModBlocks.LARGE_CROCK.get().asItem(),
                         ModBlocks.SMALL_CROCK.get().asItem()
                 );
-
-
-                Stream.of(ModBlocks.LARGE_CROCK.get(), ModBlocks.SMALL_CROCK.get())
-                        .forEach(block -> ItemBlockRenderTypes.setRenderLayer(block, RenderType.cutout()));
-
                 ItemPropertyFunction dyeColor = dyeColorProperty();
 
                 ItemProperties.register(ModBlocks.LARGE_CROCK.get().asItem(), ResourceLocation.fromNamespaceAndPath("ceramiccrocks","dyecolor"), dyeColor);
@@ -162,46 +147,36 @@ public class CeramicCrocks
 
     private static ItemPropertyFunction dyeColorProperty() {
         return (stack, level, entity, seed) -> {
-            CompoundTag tag = BlockItem.getBlockEntityData(stack);
-            if (tag != null && tag.contains("dyecolor")) {
-                return switch (tag.getString("dyecolor")) {
-                    case "orange" -> 1f;
-                    case "magenta" -> 2f;
-                    case "light_blue" -> 3f;
-                    case "yellow" -> 4f;
-                    case "lime" -> 5f;
-                    case "pink" -> 6f;
-                    case "gray" -> 7f;
-                    case "light_gray" -> 8f;
-                    case "cyan" -> 9f;
-                    case "purple" -> 10f;
-                    case "blue" -> 11f;
-                    case "brown" -> 12f;
-                    case "green" -> 13f;
-                    case "red" -> 14f;
-                    case "black" -> 15f;
-                    default -> 0f; // white
-                };
+            DyeColor dye = stack.get(DataComponents.BASE_COLOR);
+            if (dye == null) {
+                return 0f;
             }
-            return 0f;
+            return switch (dye) {
+                case ORANGE -> 1f;
+                case MAGENTA -> 2f;
+                case LIGHT_BLUE -> 3f;
+                case YELLOW -> 4f;
+                case LIME -> 5f;
+                case PINK -> 6f;
+                case GRAY -> 7f;
+                case LIGHT_GRAY -> 8f;
+                case CYAN -> 9f;
+                case PURPLE -> 10f;
+                case BLUE -> 11f;
+                case BROWN -> 12f;
+                case GREEN -> 13f;
+                case RED -> 14f;
+                case BLACK -> 15f;
+                default -> 0f;
+            };
         };
     }
 
     private void onRightClickBlock(PlayerInteractEvent.RightClickBlock event) {
-        if (event.getEntity().isShiftKeyDown()) {
-            BlockPos pos = event.getPos();
-            Level level = event.getLevel();
-            BlockState state = level.getBlockState(pos);
-
-            if (state.getBlock() instanceof CrockBlock) {
-                InteractionResult result = state.use(level, event.getEntity(), event.getHand(), event.getHitVec());
-                if (result.consumesAction()) {
-                    event.setCancellationResult(result);
-                    event.setCanceled(true);
-                }
-            }
+        if (event.getEntity().isShiftKeyDown()
+                && event.getItemStack().getItem() instanceof DyeItem
+                && event.getLevel().getBlockState(event.getPos()).getBlock() instanceof CrockBlock) {
+            event.setUseBlock(Event.Result.ALLOW);
         }
     }
-
-
 }
