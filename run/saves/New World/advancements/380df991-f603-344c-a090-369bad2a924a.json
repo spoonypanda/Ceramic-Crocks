@@ -71,18 +71,6 @@
     },
     "done": true
   },
-  "minecraft:recipes/misc/large_crock_from_smelting_unfired_large_crock": {
-    "criteria": {
-      "has_unfired_large_crock": "2025-05-15 19:03:25 -0700"
-    },
-    "done": true
-  },
-  "minecraft:recipes/misc/small_crock_from_smelting_unfired_small_crock": {
-    "criteria": {
-      "has_unfired_small_crock": "2025-05-15 19:03:25 -0700"
-    },
-    "done": true
-  },
   "ceramiccrocks:recipes/misc/unfired_small_crock": {
     "criteria": {
       "has_clay_ball": "2025-05-15 19:03:25 -0700"
@@ -452,6 +440,24 @@
   "minecraft:recipes/building_blocks/dye_purple_bed": {
     "criteria": {
       "has_needed_dye": "2025-06-15 12:43:54 -0700"
+    },
+    "done": true
+  },
+  "ceramiccrocks:recipes/misc/small_crock_from_smelting": {
+    "criteria": {
+      "has_small_crock": "2025-08-04 08:25:52 -0700"
+    },
+    "done": true
+  },
+  "ceramiccrocks:recipes/misc/large_crock_from_smelting": {
+    "criteria": {
+      "has_large_crock": "2025-08-04 08:25:55 -0700"
+    },
+    "done": true
+  },
+  "minecraft:adventure/sleep_in_bed": {
+    "criteria": {
+      "slept_in_bed": "2025-08-04 09:47:06 -0700"
     },
     "done": true
   },
