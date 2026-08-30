@@ -1,7 +1,0 @@
-#Allow the dyeing of Crocks (set to false if you hate fun)
-allowDye = true
-#List the items you don't want to allow in your crocks. Format: modid:item_name
-#CROCK_BLACKLISTED tag is also a thing, if you prefer to do it through datapacks.
-#Remove the default crocks at your own risk, your minecraft universe may collapse due to crockception.
-crockBlacklist = ["ceramiccrocks:small_crock", "ceramiccrocks:large_crock"]
-

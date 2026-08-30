@@ -1,37 +1,18 @@
-.gradle
-**/build/
-!src/**/build/
-
-
-# Ignore Gradle GUI config
-gradle-app.setting
-
-# Avoid ignoring Gradle wrapper jar file (.jar files are usually ignored)
-!gradle-wrapper.jar
-
-# Avoid ignore Gradle wrappper properties
-!gradle-wrapper.properties
-
-# Cache of project
-.gradletasknamecache
-
-# Eclipse Gradle plugin generated files
-# Eclipse Core
-.project
-# JDT-specific (Eclipse Java Development Tools)
-.classpath
-
-# Ignore IntelliJ output and metadata
+# IntelliJ
 /.idea/
 /out/
+
+# Gradle
+/.gradle/
 /build/
+**/build/
+
+# Minecraft development runtime
 /run/
+/run-data/
 
-# Ignore Gradle cache
-/.gradle/
-/.gradle/
-/**/build/
+# Generated resources
+/src/generated/
 
-# Ignore log files
+# Logs
 *.log
-
