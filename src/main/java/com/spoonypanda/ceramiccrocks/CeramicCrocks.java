@@ -4,33 +4,43 @@ import com.mojang.logging.LogUtils;
 import com.spoonypanda.ceramiccrocks.block.custom.CrockBlock;
 import com.spoonypanda.ceramiccrocks.block.entity.CrockBlockEntity;
 import com.spoonypanda.ceramiccrocks.block.entity.ModBlockEntities;
+import com.spoonypanda.ceramiccrocks.client.renderer.item.CrockItemRenderer;
 import com.spoonypanda.ceramiccrocks.item.ModCreativeModeTabs;
 import com.spoonypanda.ceramiccrocks.item.ModItems;
 import com.spoonypanda.ceramiccrocks.block.ModBlocks;
 import com.spoonypanda.ceramiccrocks.screen.CrockScreen;
 import com.spoonypanda.ceramiccrocks.screen.ModMenuTypes;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.screens.MenuScreens;
+import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
 import net.minecraft.client.renderer.item.ItemProperties;
 import net.minecraft.client.renderer.item.ItemPropertyFunction;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.*;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.BuildCreativeModeTabContentsEvent;
-import net.minecraftforge.event.entity.player.PlayerInteractEvent;
-import net.minecraftforge.event.server.ServerStartingEvent;
-import net.minecraftforge.eventbus.api.Event;
-import net.minecraftforge.eventbus.api.IEventBus;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.config.ModConfig;
-import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
-import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
-import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.neoforge.capabilities.Capabilities;
+import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
+import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
+import net.neoforged.neoforge.client.extensions.common.IClientItemExtensions;
+import net.neoforged.neoforge.client.extensions.common.RegisterClientExtensionsEvent;
+import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.common.util.TriState;
+import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
+import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
+import net.neoforged.neoforge.event.server.ServerStartingEvent;
+import net.neoforged.bus.api.IEventBus;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.Mod;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.fml.config.ModConfig;
+import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
+import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
+import net.neoforged.fml.ModContainer;
 import org.slf4j.Logger;
+
+
+
 
 import javax.annotation.Nullable;
 
@@ -40,10 +50,8 @@ public class CeramicCrocks
     public static final String MOD_ID = "ceramiccrocks";
     private static final Logger LOGGER = LogUtils.getLogger();
 
-    public CeramicCrocks(FMLJavaModLoadingContext context)
+    public CeramicCrocks(IEventBus modEventBus, ModContainer container)
     {
-        IEventBus modEventBus = context.getModEventBus();
-
         ModItems.register(modEventBus);
         ModBlocks.register(modEventBus);
         ModBlockEntities.register(modEventBus);
@@ -55,15 +63,18 @@ public class CeramicCrocks
         modEventBus.addListener(this::commonSetup);
 
         // Register ourselves for server and other game events we are interested in
-        MinecraftForge.EVENT_BUS.register(this);
+        NeoForge.EVENT_BUS.register(this);
 
         // Register the item to a creative tab
         modEventBus.addListener(this::addCreative);
 
-        // Register our mod's ForgeConfigSpec so that Forge can create and load the config file for us
-        context.registerConfig(ModConfig.Type.COMMON, Config.SPEC);
+        // Register events for the containers for hopper interaction
+        modEventBus.addListener(this::registerCapabilities);
 
-        MinecraftForge.EVENT_BUS.addListener(this::onRightClickBlock);
+        // Register our mod's ForgeConfigSpec so that Forge can create and load the config file for us
+        container.registerConfig(ModConfig.Type.COMMON, Config.SPEC);
+
+        NeoForge.EVENT_BUS.addListener(this::onRightClickBlock);
     }
 
     private void commonSetup(final FMLCommonSetupEvent event)
@@ -74,8 +85,8 @@ public class CeramicCrocks
     private void addCreative(BuildCreativeModeTabContentsEvent event)
     {
         if(event.getTabKey() == CreativeModeTabs.INGREDIENTS) {
-            event.accept(ModItems.UNFIRED_LARGE_CROCK);
-            event.accept(ModItems.UNFIRED_SMALL_CROCK);
+            event.accept(ModItems.UNFIRED_LARGE_CROCK.get());
+            event.accept(ModItems.UNFIRED_SMALL_CROCK.get());
         }
     }
 
@@ -86,16 +97,12 @@ public class CeramicCrocks
     }
 
     // You can use EventBusSubscriber to automatically register all static methods in the class annotated with @SubscribeEvent
-    @Mod.EventBusSubscriber(modid = MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
+    @EventBusSubscriber(modid = MOD_ID,value = Dist.CLIENT)
     public static class ClientModEvents
     {
         @SubscribeEvent
-        @SuppressWarnings("deprecation")
         public static void onClientSetup(FMLClientSetupEvent event)
         {
-            MenuScreens.register(ModMenuTypes.LARGE_CROCK_MENU.get(), CrockScreen::new);
-            MenuScreens.register(ModMenuTypes.SMALL_CROCK_MENU.get(), CrockScreen::new);
-
             event.enqueueWork(() -> {
                 // Block color
                 Minecraft.getInstance().getBlockColors().register(
@@ -130,6 +137,39 @@ public class CeramicCrocks
                 ItemProperties.register(ModBlocks.SMALL_CROCK.get().asItem(), ResourceLocation.fromNamespaceAndPath("ceramiccrocks","dyecolor"), dyeColor);
             });
         }
+
+        @SubscribeEvent
+        public static void registerScreens(RegisterMenuScreensEvent event) {
+            event.register(ModMenuTypes.LARGE_CROCK_MENU.get(), CrockScreen::new);
+            event.register(ModMenuTypes.SMALL_CROCK_MENU.get(), CrockScreen::new);
+        }
+
+        @SubscribeEvent
+        public static void registerClientExtensions(RegisterClientExtensionsEvent event) {
+            event.registerItem(new IClientItemExtensions() {
+                   private final CrockItemRenderer renderer = new CrockItemRenderer();
+
+                   @Override
+                   public BlockEntityWithoutLevelRenderer getCustomRenderer() {
+                       return renderer;
+                   }
+               }, ModBlocks.LARGE_CROCK.get().asItem(),
+            ModBlocks.SMALL_CROCK.get().asItem());
+        }
+    }
+
+    private void registerCapabilities(RegisterCapabilitiesEvent event) {
+        event.registerBlockEntity(
+                Capabilities.ItemHandler.BLOCK,
+                ModBlockEntities.LARGE_CROCK_BE.get(),
+                (crock, side) -> crock.getItemHandler()
+        );
+
+        event.registerBlockEntity(
+                Capabilities.ItemHandler.BLOCK,
+                ModBlockEntities.SMALL_CROCK_BE.get(),
+                (crock, side) -> crock.getItemHandler()
+        );
     }
 
     private static int getBlendedDyeColor(@Nullable DyeColor dye, float mix) {
@@ -176,7 +216,7 @@ public class CeramicCrocks
         if (event.getEntity().isShiftKeyDown()
                 && event.getItemStack().getItem() instanceof DyeItem
                 && event.getLevel().getBlockState(event.getPos()).getBlock() instanceof CrockBlock) {
-            event.setUseBlock(Event.Result.ALLOW);
+            event.setUseBlock(TriState.TRUE);
         }
     }
 }

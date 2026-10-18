@@ -9,8 +9,7 @@ import net.minecraft.world.inventory.*;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraftforge.common.capabilities.ForgeCapabilities;
-import net.minecraftforge.items.SlotItemHandler;
+import net.neoforged.neoforge.items.SlotItemHandler;
 
 public class CrockMenu extends AbstractContainerMenu {
     public final CrockBlockEntity blockEntity;
@@ -35,20 +34,19 @@ public class CrockMenu extends AbstractContainerMenu {
         addPlayerInventory(inv);
         addPlayerHotbar(inv);
 
-        this.blockEntity.getCapability(ForgeCapabilities.ITEM_HANDLER).ifPresent(iItemHandler -> {
+        var iItemHandler = this.blockEntity.getItemHandler();
 
-            int columns = size.getColumns();
-            int rows = size.getRows();
+        int columns = size.getColumns();
+        int rows = size.getRows();
 
-            int xOffset = (178 - (columns * 18)) / 2;
-            int yOffset = 28;
+        int xOffset = (178 - (columns * 18)) / 2;
+        int yOffset = 28;
 
-            for (int row = 0; row < rows; ++row) {
-                for (int col = 0; col < columns; ++col) {
-                    this.addSlot(new SlotItemHandler(iItemHandler, col + row * columns, xOffset + col * 18, yOffset + row * 18));
-                }
+        for (int row = 0; row < rows; ++row) {
+            for (int col = 0; col < columns; ++col) {
+                this.addSlot(new SlotItemHandler(iItemHandler, col + row * columns, xOffset + col * 18, yOffset + row * 18));
             }
-        });
+        }
         addDataSlots(data);
     }
 

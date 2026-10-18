@@ -7,7 +7,7 @@ import com.spoonypanda.ceramiccrocks.Config;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponentMap;
 import net.minecraft.core.component.DataComponents;
-import net.minecraft.core.Direction;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.Connection;
@@ -26,22 +26,14 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.capabilities.ForgeCapabilities;
-import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.items.IItemHandler;
-import net.minecraftforge.items.ItemStackHandler;
-import net.minecraftforge.registries.ForgeRegistries;
+import net.neoforged.neoforge.items.ItemStackHandler;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.IntStream;
 
 public class CrockBlockEntity extends BlockEntity implements MenuProvider {
-
-    private LazyOptional<IItemHandler> lazyItemHandler = LazyOptional.empty();
     private ItemStackHandler itemHandler;
 
     private final CrockSize size;
@@ -97,27 +89,6 @@ public class CrockBlockEntity extends BlockEntity implements MenuProvider {
 
     public static CrockBlockEntity createSmall(BlockPos pos, BlockState state) {
         return new CrockBlockEntity(pos, state, CrockSize.SMALL);
-    }
-
-    @Override
-    public @NotNull <T> LazyOptional<T> getCapability(@NotNull Capability<T> cap, @Nullable Direction side) {
-        if (cap == ForgeCapabilities.ITEM_HANDLER){
-            return lazyItemHandler.cast();
-        }
-
-        return super.getCapability(cap, side);
-    }
-
-    @Override
-    public void onLoad() {
-        super.onLoad();
-        lazyItemHandler = LazyOptional.of(() -> itemHandler);
-    }
-
-    @Override
-    public void invalidateCaps() {
-        super.invalidateCaps();
-        lazyItemHandler.invalidate();
     }
 
     @Override
@@ -199,7 +170,7 @@ public class CrockBlockEntity extends BlockEntity implements MenuProvider {
 
         // Can use the config or the CROCK_BLACKLISTED tag, depending on how the modpack author wants to do things.
         Item item = stack.getItem();
-        if (Config.crockBlacklist.contains(ForgeRegistries.ITEMS.getKey(item))) {
+        if (Config.crockBlacklist.contains(BuiltInRegistries.ITEM.getKey(item))) {
             return true;
         }
 
@@ -245,5 +216,9 @@ public class CrockBlockEntity extends BlockEntity implements MenuProvider {
     public void removeComponentsFromTag(CompoundTag tag) {
         tag.remove("inventory");
         tag.remove("dyecolor");
+    }
+
+    public ItemStackHandler getItemHandler() {
+        return itemHandler;
     }
 }

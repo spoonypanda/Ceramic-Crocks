@@ -4,14 +4,14 @@ import com.spoonypanda.ceramiccrocks.CeramicCrocks;
 import com.spoonypanda.ceramiccrocks.block.ModBlocks;
 import com.spoonypanda.ceramiccrocks.item.ModItems;
 import net.minecraft.data.PackOutput;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
-import net.minecraftforge.client.model.generators.ItemModelBuilder;
-import net.minecraftforge.client.model.generators.ItemModelProvider;
-import net.minecraftforge.client.model.generators.ModelFile;
-import net.minecraftforge.common.data.ExistingFileHelper;
-import net.minecraftforge.registries.ForgeRegistries;
-import net.minecraftforge.registries.RegistryObject;
+import net.neoforged.neoforge.client.model.generators.ItemModelBuilder;
+import net.neoforged.neoforge.client.model.generators.ItemModelProvider;
+import net.neoforged.neoforge.client.model.generators.ModelFile;
+import net.neoforged.neoforge.common.data.ExistingFileHelper;
+import net.neoforged.neoforge.registries.DeferredHolder;
 
 public class ModItemModelProvider extends ItemModelProvider {
 
@@ -27,7 +27,7 @@ public class ModItemModelProvider extends ItemModelProvider {
         itemModel(ModBlocks.SMALL_CROCK.get().asItem());
     }
 
-    private ItemModelBuilder simpleItem(RegistryObject<Item> item) {
+    private ItemModelBuilder simpleItem(DeferredHolder<Item, Item> item) {
         return withExistingParent(item.getId().getPath(),
                 ResourceLocation.tryParse("item/generated")).texture("layer0",
                 ResourceLocation.tryBuild(CeramicCrocks.MOD_ID, "item/" + item.getId().getPath()));
@@ -35,7 +35,7 @@ public class ModItemModelProvider extends ItemModelProvider {
     }
 
     private void itemModel(Item item) {
-        String name = ForgeRegistries.ITEMS.getKey(item).getPath();
+        String name = BuiltInRegistries.ITEM.getKey(item).getPath();
         getBuilder(name)
                 .parent(new ModelFile.UncheckedModelFile(modLoc("block/" + name)));
     }

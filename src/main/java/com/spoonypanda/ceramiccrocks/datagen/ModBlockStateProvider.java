@@ -3,9 +3,9 @@ package com.spoonypanda.ceramiccrocks.datagen;
 import com.spoonypanda.ceramiccrocks.CeramicCrocks;
 import com.spoonypanda.ceramiccrocks.block.ModBlocks;
 import net.minecraft.data.PackOutput;
-import net.minecraftforge.client.model.generators.BlockStateProvider;
-import net.minecraftforge.client.model.generators.ModelFile;
-import net.minecraftforge.common.data.ExistingFileHelper;
+import net.neoforged.neoforge.client.model.generators.BlockStateProvider;
+import net.neoforged.neoforge.client.model.generators.ModelFile;
+import net.neoforged.neoforge.common.data.ExistingFileHelper;
 
 public class ModBlockStateProvider  extends BlockStateProvider{
     public ModBlockStateProvider(PackOutput output, ExistingFileHelper exFileHelper) {
